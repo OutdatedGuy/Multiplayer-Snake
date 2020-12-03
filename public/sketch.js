@@ -15,6 +15,7 @@ let bananaImg;
 var ranCol;
 var socket;
 let name;
+let scoreList = [];
 
 function preload() {
 	deadSound = loadSound("sounds/Oof.mp3");
@@ -33,9 +34,6 @@ function setup() {
 	socket.on('heartbeat',
 	function(data) {
 		SNAKES = data;
-		if(SNAKES.length > 1) {
-			end = 0;
-		}
 	});
 
 	socket.on('newFood',
@@ -43,7 +41,7 @@ function setup() {
 		FoodX = data.FoodX;
 		FoodY = data.FoodY;
 		ran = data.ran;
-	})
+	});
 
 	frameRate(15);
 
@@ -61,17 +59,18 @@ function draw() {
 		mySnake[0].move();
 		mySnake[0].dead(socket.id);
 		gameScreen();
-	}
+	} else if (end == -0.5)
+		waitingScreen();
 }
 
 function startScreen() {
 	background(60);
-	name = createInput('Enter Your Name!').attribute('maxlength', 10);
+	name = createInput('Your Name!').attribute('maxlength', 10);
 	name.position(width/2 - 75, height/2 - 60);
 	name.size(150, 20);
 
 	let button = createButton('Submit');
-	button.position(width/2 - 50, height/2);
+	button.position(width/2 - 50, height/2 - 10);
 	button.size(100, 20);
 	button.mousePressed(bonjour);
 }
@@ -94,36 +93,44 @@ function bonjour() {
 	}
 
 	if(SNAKES.length == 0) {
-		for(var f = 0; f < 6; f++) {
+		for(var f = 0; f < 10; f++) {
 			foodLocation(f);
 		}
 	}
 
 	socket.emit('start', data);
+	end = -0.5;
 	waitingScreen();
 }
 
 function waitingScreen() {
+	removeElements();
 	background(60);
-	end = -0.5;
 	noFill();
 	stroke(255);
 	strokeWeight(1);
 	rectMode(CORNER);
 
-	fill(170);
-	stroke(170);
+	fill(0, 255, 255);
+	stroke(100, 255, 60);
 	strokeWeight(2);
 	textAlign(CENTER);
 	textSize(45);
-	text("Waiting", width/2, height/2);
+	text("Waiting for Someone to Join...", width/2, height/2);
+	let button = createButton("Don't Wait");
+	button.position(width/2 - 50, height/2 + 30);
+	button.size(100, 20);
+	button.mousePressed(lonely);
+	if(SNAKES.length > 1) {
+		end = 0;
+	}
+}
+
+function lonely() {
+	end = 0;
 }
 
 function keyPressed() {
-	if (end == -0.5 && keyCode == ENTER) {
-		end = 0;
-	}
-	
 	if (end == 0) {
 		if ((keyCode === LEFT_ARROW || keyCode === 65) && mySnake[0].xSpeed < 1) {
 			mySnake[0].updateSpeed(-1, 0);
@@ -138,6 +145,7 @@ function keyPressed() {
 }
 
 function gameScreen() {
+	removeElements();
 	//playing layout
 	background(60);
 	noFill();
@@ -149,19 +157,24 @@ function gameScreen() {
 	for(var f = 0; f < FoodX.length; f++) {
 		FoodShow(ran[f], f);
 	}
+
+	for(var s = 0; s < SNAKES.length; s++) {
+		scoreList[s] = createP(`${s + 1}) ${SNAKES[s].name}: ${SNAKES[s].lambi - 1}`);
+		scoreList[s].position(1310, 20 + s*25);
+	}
 	
-	for(k = myLambi - 1; k >= 0; k--) {
+	for(var k = myLambi - 1; k >= 0; k--) {
 		mySnake[k].show();
 		if(k == 0) {
 			mySnake[k].eyes();
 		}
 	}
 
-	for(k = 0; k < SNAKES.length; k++) {
+	for(var k = 0; k < SNAKES.length; k++) {
 		if (SNAKES[k].id == socket.id) {
 			continue;
 		}
-		for (i = SNAKES[k].lambi - 1; i >= 0 ; i--) {
+		for(var i = SNAKES[k].lambi - 1; i >= 0 ; i--) {
 			var x = SNAKES[k].snake[i].x;
 			var y = SNAKES[k].snake[i].y;
 			show(SNAKES[k].col.levels, x, y);
@@ -176,7 +189,7 @@ function gameScreen() {
 	
 	mySnake[0].eat();
 
-	for (i = myLambi - 1; i > 0; i--) {
+	for(var i = myLambi - 1; i > 0; i--) {
 		mySnake[i].x = mySnake[i - 1].x;
 		mySnake[i].y = mySnake[i - 1].y;
 		mySnake[i].xSpeed = mySnake[i - 1].xSpeed;
@@ -209,7 +222,7 @@ class SnakeBody {
 			if (SNAKES[k].id == me) {
 				continue;
 			}
-			for (var i = 0; i < SNAKES[k].lambi; i++) {
+			for(var i = 0; i < SNAKES[k].lambi; i++) {
 				if (this.x == SNAKES[k].snake[i].x && this.y == SNAKES[k].snake[i].y) {
 					deadSound.play();
 					myLambi = 0;
@@ -227,15 +240,6 @@ class SnakeBody {
 				foodLocation(f);
 			}
 		}
-		
-		var data = {
-			name: name.value(),
-			mySnake: mySnake,
-			lambi: myLambi,
-			col: ranCol
-		}
-
-		socket.emit('update', data);
 	}
 	move() {
 		this.x = this.x + this.xSpeed;
@@ -353,7 +357,7 @@ function revive(me) {
 			if (SNAKES[k].id == me) {
 				continue;
 			}
-			for (i = 0; i < SNAKES[k].lambi; i++) {
+			for(var i = 0; i < SNAKES[k].lambi; i++) {
 			if (ranX == SNAKES[k].snake[i].x && ranY == SNAKES[k].snake[i].y) {
 				revive(me);
 			}
@@ -377,7 +381,7 @@ function foodLocation(f) {
 	FoodY[f] = int(random(1, (height / blocks) - 2)) * blocks;
 	ran[f] = int(random(1, 5));
 
-	for(i = 0; i < FoodX.length; i++) {
+	for(var i = 0; i < FoodX.length; i++) {
 		if(i == f) {
 			continue;
 		}
@@ -386,8 +390,8 @@ function foodLocation(f) {
 		}
 	}
 	
-	for(k = 0; k < SNAKES.length; k++) {
-		for (i = 0; i < SNAKES[k].lambi; i++) {
+	for(var k = 0; k < SNAKES.length; k++) {
+		for(var i = 0; i < SNAKES[k].lambi; i++) {
 			if (FoodX[f] == SNAKES[k].snake[i].x && FoodY[f] == SNAKES[k].snake[i].y) {
 				foodLocation(f);
 			}
