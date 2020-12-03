@@ -150,9 +150,18 @@ function gameScreen() {
 		FoodShow(ran[f], f);
 	}
 	
+	for(k = myLambi - 1; k >= 0; k--) {
+		mySnake[k].show();
+		if(k == 0) {
+			mySnake[k].eyes();
+		}
+	}
 
 	for(k = 0; k < SNAKES.length; k++) {
-		for (i = 0; i < SNAKES[k].lambi; i++) {
+		if (SNAKES[k].id == socket.id) {
+			continue;
+		}
+		for (i = SNAKES[k].lambi - 1; i >= 0 ; i--) {
 			var x = SNAKES[k].snake[i].x;
 			var y = SNAKES[k].snake[i].y;
 			show(SNAKES[k].col.levels, x, y);
@@ -234,6 +243,45 @@ class SnakeBody {
 		}
 
 		socket.emit('update', data);
+	}
+	show() {
+		fill(ranCol);
+		stroke(0);
+		strokeWeight(1);
+		rect(this.x, this.y, blocks);
+	}
+	eyes() {
+		noStroke();
+		ellipseMode(CENTER);
+		textSize(10);
+		if (this.xSpeed > 0) {
+			fill(0);
+			ellipse(this.x + 15, this.y + 5, 6, 3);
+			ellipse(this.x + 15, this.y + 15, 6, 3);
+			fill(255);
+			text(name.value(), this.x + 10, this.y + 30);
+		} else if (this.xSpeed < 0) {
+			fill(0);
+			ellipse(this.x + 5, this.y + 5, 6, 3);
+			ellipse(this.x + 5, this.y + 15, 6, 3);
+			fill(255);
+			text(name.value(), this.x + 10, this.y + 30);
+		} else if (this.ySpeed < 0) {
+			fill(0);
+			ellipse(this.x + 5, this.y + 5, 3, 6);
+			ellipse(this.x + 15, this.y + 5, 3, 6);
+			fill(255);
+			text(name.value(), this.x + 10, this.y - 5);
+		} else if (this.ySpeed > 0) {
+			fill(0);
+			ellipse(this.x + 5, this.y + 15, 3, 6);
+			ellipse(this.x + 15, this.y + 15, 3, 6);
+			fill(255);
+			text(name.value(), this.x + 10, this.y + 30);
+		} else {
+			fill(255);
+			text(name.value(), this.x + 10, this.y - 5);
+		}
 	}
 }
 
