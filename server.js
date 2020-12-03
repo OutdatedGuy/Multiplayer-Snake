@@ -60,6 +60,7 @@ function (socket) {
             if(socket.id == SNAKES[i].id) {
                 var snake = new Snake(socket.id, data.name, data.mySnake, data.lambi, data.col);
                 SNAKES[i] = snake;
+                console.log(snake);
             }
         }
         io.sockets.emit('heartbeat', SNAKES);
