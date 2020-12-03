@@ -194,6 +194,15 @@ class SnakeBody {
 	updateSpeed(xS, xY) {
 		this.xSpeed = xS * blocks;
 		this.ySpeed = xY * blocks;
+		
+		var data = {
+			name: name.value(),
+			mySnake: mySnake,
+			lambi: myLambi,
+			col: ranCol
+		}
+
+		socket.emit('update', data);
 	}
 	dead(me) {
 		for(var k = 0; k < SNAKES.length; k++) {
@@ -218,6 +227,15 @@ class SnakeBody {
 				foodLocation(f);
 			}
 		}
+		
+		var data = {
+			name: name.value(),
+			mySnake: mySnake,
+			lambi: myLambi,
+			col: ranCol
+		}
+
+		socket.emit('update', data);
 	}
 	move() {
 		this.x = this.x + this.xSpeed;
@@ -342,6 +360,15 @@ function revive(me) {
 		}
 	}
 	mySnake[myLambi++] = new SnakeBody(ranX, ranY);
+	
+	var data = {
+		name: name.value(),
+		mySnake: mySnake,
+		lambi: myLambi,
+		col: ranCol
+	}
+
+	socket.emit('update', data);
 }
 
 

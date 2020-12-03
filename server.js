@@ -26,7 +26,7 @@ const socket = require('socket.io');
 const io = socket(server);
 
 
-setInterval(heartbeat, 1000/15);
+setInterval(heartbeat, 30);
 
 function heartbeat() {
     io.sockets.emit('heartbeat', SNAKES);
@@ -51,7 +51,6 @@ function (socket) {
             ran: ran
         }
         io.sockets.emit('newFood', FOOD);
-        io.sockets.emit('heartbeat', SNAKES);
     });
 
     socket.on('update',
@@ -60,9 +59,9 @@ function (socket) {
             if(socket.id == SNAKES[i].id) {
                 var snake = new Snake(socket.id, data.name, data.mySnake, data.lambi, data.col);
                 SNAKES[i] = snake;
+                break;
             }
         }
-        io.sockets.emit('heartbeat', SNAKES);
     });
 
 
@@ -78,7 +77,6 @@ function (socket) {
             ran: ran
         }
         io.sockets.emit('newFood', FOOD);
-        io.sockets.emit('heartbeat', SNAKES);
     });
 
     socket.on('disconnect',
@@ -87,8 +85,8 @@ function (socket) {
         for(var i = 0; i < SNAKES.length; i++) {
             if(socket.id == SNAKES[i].id) {
                 SNAKES.splice(i, 1);
+                break;
             }
         }
-        io.sockets.emit('heartbeat', SNAKES);
     });
 });
