@@ -15,7 +15,7 @@ let bananaImg;
 var ranCol;
 var socket;
 let name;
-let scoreList = [];
+let scoreBoard = [];
 
 function preload() {
 	deadSound = loadSound("sounds/Oof.mp3");
@@ -72,6 +72,7 @@ function startScreen() {
 	let button = createButton('Submit');
 	button.position(width/2 - 50, height/2 - 10);
 	button.size(100, 20);
+	button.style('cursor: pointer');
 	button.mousePressed(bonjour);
 }
 
@@ -100,11 +101,17 @@ function bonjour() {
 
 	socket.emit('start', data);
 	end = -0.5;
+
+	
+	let button = createButton("Don't Wait");
+	button.position(width/2 - 50, height/2 + 30);
+	button.size(100, 20);
+	button.style('cursor: pointer');
+	button.mousePressed(lonely);
 	waitingScreen();
 }
 
 function waitingScreen() {
-	removeElements();
 	background(60);
 	noFill();
 	stroke(255);
@@ -117,10 +124,6 @@ function waitingScreen() {
 	textAlign(CENTER);
 	textSize(45);
 	text("Waiting for Someone to Join...", width/2, height/2);
-	let button = createButton("Don't Wait");
-	button.position(width/2 - 50, height/2 + 30);
-	button.size(100, 20);
-	button.mousePressed(lonely);
 	if(SNAKES.length > 1) {
 		end = 0;
 	}
@@ -158,9 +161,12 @@ function gameScreen() {
 		FoodShow(ran[f], f);
 	}
 
-	for(var s = 0; s < SNAKES.length; s++) {
-		scoreList[s] = createP(`${s + 1}) ${SNAKES[s].name}: ${SNAKES[s].lambi - 1}`);
-		scoreList[s].position(1310, 20 + s*25);
+	var temp = SNAKES;
+	temp.sort((a, b) => b.lambi - a.lambi);
+
+	for(var s = 0; s < temp.length; s++) {
+		scoreBoard[s] = createP(`${s + 1}) ${temp[s].name}: ${temp[s].lambi - 1}`);
+		scoreBoard[s].position(1310, 20 + s*25);
 	}
 	
 	for(var k = myLambi - 1; k >= 0; k--) {
