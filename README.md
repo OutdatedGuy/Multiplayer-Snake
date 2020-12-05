@@ -7,4 +7,4 @@ A Multiplayer Snake Game Using Server Side Programming
 
 Inspired by Snake.io
 
-Learned Sockets, Node and p5 from The Coding Train.
+Learned Sockets, Node and p5 from [The Coding Train](https://www.youtube.com/channel/UCvjgXvBlbQiydffZU7m1_aw)

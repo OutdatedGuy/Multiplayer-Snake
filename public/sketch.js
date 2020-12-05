@@ -224,6 +224,7 @@ class SnakeBody {
 		socket.emit('update', data);
 	}
 	dead(me) {
+		var r = 0;
 		for(var k = 0; k < SNAKES.length; k++) {
 			if (SNAKES[k].id == me) {
 				continue;
@@ -233,7 +234,12 @@ class SnakeBody {
 					deadSound.play();
 					myLambi = 0;
 					revive(me);
+					r = 1;
+					break;
 				}
+			}
+			if(r != 0) {
+				break;
 			}
 		}
 	}
@@ -244,6 +250,7 @@ class SnakeBody {
 				mySnake[myLambi] = new SnakeBody(mySnake[myLambi - 1].x, mySnake[myLambi - 1].y);
 				myLambi++;
 				foodLocation(f);
+				break;
 			}
 		}
 	}
@@ -356,6 +363,7 @@ function eyes(x, y, xSpeed, ySpeed, name) {
 
 
 function revive(me) {
+	var r = 0;
 	var ranX = int(random(1, (width / blocks) - 2)) * blocks;
 	var ranY = int(random(1, (height / blocks) - 2)) * blocks;
 
@@ -366,7 +374,12 @@ function revive(me) {
 			for(var i = 0; i < SNAKES[k].lambi; i++) {
 			if (ranX == SNAKES[k].snake[i].x && ranY == SNAKES[k].snake[i].y) {
 				revive(me);
+				r = 1;
+				break;
 			}
+		}
+		if(r != 0) {
+			break;
 		}
 	}
 	mySnake[myLambi++] = new SnakeBody(ranX, ranY);
@@ -383,6 +396,7 @@ function revive(me) {
 
 
 function foodLocation(f) {
+	var r = 0;
 	FoodX[f] = int(random(1, (width / blocks) - 2)) * blocks;
 	FoodY[f] = int(random(1, (height / blocks) - 2)) * blocks;
 	ran[f] = int(random(1, 5));
@@ -393,6 +407,7 @@ function foodLocation(f) {
 		}
 		if(FoodX[i] == FoodX[f] && FoodY[i] == FoodY[f]) {
 			foodLocation(f);
+			break;
 		}
 	}
 	
@@ -400,7 +415,12 @@ function foodLocation(f) {
 		for(var i = 0; i < SNAKES[k].lambi; i++) {
 			if (FoodX[f] == SNAKES[k].snake[i].x && FoodY[f] == SNAKES[k].snake[i].y) {
 				foodLocation(f);
+				r = 1;
+				break;
 			}
+		}
+		if(r != 0) {
+			break;
 		}
 	}
 
