@@ -12,6 +12,7 @@ let appleImg;
 let pearImg;
 let orangeImg;
 let bananaImg;
+let meatImg;
 var ranCol;
 var socket;
 let name;
@@ -24,6 +25,7 @@ function preload() {
 	pearImg = loadImage("img/Pear.png");
 	orangeImg = loadImage("img/Orange.png");
 	bananaImg = loadImage("img/Banana.png");
+	meatImg = loadImage("img/Meat.png");
 }
 
 function setup() {
@@ -232,6 +234,7 @@ class SnakeBody {
 			for(var i = 0; i < SNAKES[k].lambi; i++) {
 				if (this.x == SNAKES[k].snake[i].x && this.y == SNAKES[k].snake[i].y) {
 					deadSound.play();
+					deadFood();
 					myLambi = 0;
 					revive(me);
 					r = 1;
@@ -246,6 +249,10 @@ class SnakeBody {
 	eat() {
 		for(var f = 0; f < FoodX.length; f++) {
 			if (this.x == FoodX[f] && this.y == FoodY[f]) {
+				if(f >= 10) {
+					meatEat(f);
+					break;
+				}
 				eatSound.play();
 				mySnake[myLambi] = new SnakeBody(mySnake[myLambi - 1].x, mySnake[myLambi - 1].y);
 				myLambi++;
@@ -395,6 +402,43 @@ function revive(me) {
 }
 
 
+function deadFood() {
+	var len = FoodX.length;
+	for(var df = 0; df < (myLambi - 1); df++) {
+		FoodX[len + df] = mySnake[df + 1].x;
+		FoodY[len + df] = mySnake[df + 1].y;
+		ran[len + df] = 5;
+	}
+
+	var fata = {
+		x: FoodX,
+		y: FoodY,
+		ran: ran
+	};
+
+	socket.emit('foodLocation', fata);
+}
+
+
+function meatEat(fEat) {
+	eatSound.play();
+	mySnake[myLambi] = new SnakeBody(mySnake[myLambi - 1].x, mySnake[myLambi - 1].y);
+	myLambi++;
+
+	FoodX.splice(fEat, 1);
+	FoodY.splice(fEat, 1);
+	ran.splice(fEat, 1);
+
+	var fata = {
+		x: FoodX,
+		y: FoodY,
+		ran: ran
+	};
+
+	socket.emit('foodLocation', fata);
+}
+
+
 function foodLocation(f) {
 	var r = 0;
 	FoodX[f] = int(random(1, (width / blocks) - 2)) * blocks;
@@ -442,5 +486,7 @@ function FoodShow(type, f) {
 		image(pearImg, FoodX[f], FoodY[f], 20,20);
 	} else if (type == 4) {
 		image(orangeImg, FoodX[f], FoodY[f], 20,20);
+	} else {
+		image(meatImg, FoodX[f], FoodY[f], 20,20);
 	}
 }
