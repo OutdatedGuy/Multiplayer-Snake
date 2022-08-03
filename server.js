@@ -4,13 +4,13 @@ let FoodY = [];
 let ran = [];
 
 class Snake {
-    constructor(id, name, snake, lambi, col) {
-        this.id = id;
-        this.name = name;
-        this.snake = snake;
-        this.lambi = lambi;
-        this.col = col;
-    }
+  constructor(id, name, snake, lambi, col) {
+    this.id = id;
+    this.name = name;
+    this.snake = snake;
+    this.lambi = lambi;
+    this.col = col;
+  }
 }
 
 const express = require('express');
@@ -29,64 +29,62 @@ const io = socket(server);
 setInterval(heartbeat, 30);
 
 function heartbeat() {
-    io.sockets.emit('heartbeat', SNAKES);
+  io.sockets.emit('heartbeat', SNAKES);
 }
 
 
 io.sockets.on('connection',
-
-function (socket) {
+  function (socket) {
     console.log('Connected: ' + socket.id);
 
     socket.on('start',
-    function(data) {
+      function (data) {
         // console.log(socket.id+" "+data.name+" "+data.mySnake+" "+data.lambi+" "+data.col);
 
         var snake = new Snake(socket.id, data.name, data.mySnake, data.lambi, data.col);
         SNAKES.push(snake);
 
         var FOOD = {
-            FoodX: FoodX,
-            FoodY: FoodY,
-            ran: ran
+          FoodX: FoodX,
+          FoodY: FoodY,
+          ran: ran
         }
         io.sockets.emit('newFood', FOOD);
-    });
+      });
 
     socket.on('update',
-    function(data) {
-        for(var i = 0; i < SNAKES.length; i++) {
-            if(socket.id == SNAKES[i].id) {
-                var snake = new Snake(socket.id, data.name, data.mySnake, data.lambi, data.col);
-                SNAKES[i] = snake;
-                break;
-            }
+      function (data) {
+        for (var i = 0; i < SNAKES.length; i++) {
+          if (socket.id == SNAKES[i].id) {
+            var snake = new Snake(socket.id, data.name, data.mySnake, data.lambi, data.col);
+            SNAKES[i] = snake;
+            break;
+          }
         }
-    });
-
+      });
 
     socket.on('foodLocation',
-    function(data) {
+      function (data) {
         FoodX = data.x;
         FoodY = data.y;
         ran = data.ran;
 
         var FOOD = {
-            FoodX: FoodX,
-            FoodY: FoodY,
-            ran: ran
+          FoodX: FoodX,
+          FoodY: FoodY,
+          ran: ran
         }
         io.sockets.emit('newFood', FOOD);
-    });
+      });
 
     socket.on('disconnect',
-    function() {
+      function () {
         console.log('Disconnected: ' + socket.id);
-        for(var i = 0; i < SNAKES.length; i++) {
-            if(socket.id == SNAKES[i].id) {
-                SNAKES.splice(i, 1);
-                break;
-            }
+        for (var i = 0; i < SNAKES.length; i++) {
+          if (socket.id == SNAKES[i].id) {
+            SNAKES.splice(i, 1);
+            break;
+          }
         }
-    });
-});
+      });
+  });
