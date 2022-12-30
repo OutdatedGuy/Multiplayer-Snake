@@ -18,7 +18,7 @@ const app = express();
 
 const port = process.env.PORT || 1412;
 const server = app.listen(port);
-console.log(`Starting server at ${port}`);
+console.log(`Starting server at http://localhost:${port}`);
 
 app.use(express.static('public'));
 
