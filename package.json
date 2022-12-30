@@ -1,6 +1,6 @@
 {
   "name": "multiplayer-snake",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A Multiplayer Snake Game using Node.js and Socket.io",
   "main": "server.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/OutdatedGuy/Multiplayer-Snake.git"
   },
   "author": "Outdated Guy",
-  "license": "ISC",
+  "license": "BSD 3-Clause License",
   "bugs": {
     "url": "https://github.com/OutdatedGuy/Multiplayer-Snake/issues"
   },
