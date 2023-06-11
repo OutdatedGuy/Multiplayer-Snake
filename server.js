@@ -25,7 +25,6 @@ app.use(express.static('public'));
 const socket = require('socket.io');
 const io = socket(server);
 
-
 setInterval(heartbeat, 30);
 
 function heartbeat() {
