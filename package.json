@@ -4,7 +4,8 @@
   "description": "A Multiplayer Snake Game using Node.js and Socket.io",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",
