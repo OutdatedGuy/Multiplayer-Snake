@@ -14,9 +14,20 @@ let orangeImg;
 let bananaImg;
 let meatImg;
 var ranCol;
-var socket;
 let nameInputField;
 let scoreBoard = [];
+
+// Native WebSocket Variables
+var ws;
+var socket = {
+  id: null,
+  emit: function (eventName, data) {
+    // This wrapper automatically formats emits into JSON for the Dart server
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: eventName, data: data }));
+    }
+  }
+};
 
 function preload() {
   deadSound = loadSound("sounds/Oof.mp3");
@@ -31,19 +42,24 @@ function preload() {
 function setup() {
   createCanvas(1300, 700);
 
-  socket = io.connect();
+  // Initialize Native WebSocket
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(`${protocol}//${window.location.host}/ws`);
 
-  socket.on('heartbeat',
-    function (data) {
-      SNAKES = data;
-    });
+  // Handle incoming Socket messages natively
+  ws.onmessage = function (event) {
+    const msg = JSON.parse(event.data);
 
-  socket.on('newFood',
-    function (data) {
-      FoodX = data.FoodX;
-      FoodY = data.FoodY;
-      ran = data.ran;
-    });
+    if (msg.type === 'connected') {
+      socket.id = msg.data;
+    } else if (msg.type === 'heartbeat') {
+      SNAKES = msg.data;
+    } else if (msg.type === 'newFood') {
+      FoodX = msg.data.FoodX;
+      FoodY = msg.data.FoodY;
+      ran = msg.data.ran;
+    }
+  };
 
   frameRate(15);
 
